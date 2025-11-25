@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Groovy Doobee</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in-up {
+            animation: fadeIn 0.5s ease-out forwards;
+        }
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(100%); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        .animate-slide-in-right {
+            animation: slideInRight 0.5s ease-out forwards;
+        }
+        
+        /* Vinyl image styling */
+        .vinyl-image {
+            object-fit: cover;
+            border-radius: 0.5rem; 
+        }
+        
+        /* Artist Square Styling */
+        .artist-square {
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            position: relative; 
+            overflow: hidden; 
+        }
+
+        .artist-square::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-color: rgba(0, 0, 0, 0.45); 
+            transition: background-color 0.3s;
+            z-index: 1; 
+        }
+
+        .artist-square:hover::before {
+            background-color: rgba(0, 0, 0, 0.2); 
+        }
+
+        .artist-name-text {
+            position: relative; 
+            z-index: 2; 
+            text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.8);
+        }
+
+        /* Styling for clickable product card */
+        .product-card-button {
+            display: block;
+            width: 100%;
+            text-align: center;
+            padding: 1.5rem; /* p-6 */
+            border-radius: 0.75rem; /* rounded-xl */
+            border: 1px solid #fbcfe8; /* border-pink-200 */
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1); /* shadow-md */
+            background-color: #fdf2f8; /* bg-pink-50 */
+            transition: transform 0.2s, box-shadow 0.2s, background-color 0.2s;
+        }
+        .product-card-button:hover {
+            transform: translateY(-4px); /* Slight lift on hover */
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1); /* shadow-lg */
+            background-color: #ffe4e6; /* bg-red-50 to match pink/red theme */
+        }
+    </style>
+</head>
+<body class="bg-pink-100 text-pink-900 flex flex-col min-h-screen">
+    <!-- Header -->
+    <header class="bg-pink-800 text-white py-6 px-4 md:px-8">
+        <div class="max-w-6xl mx-auto text-center">
+            <h1 class="text-2xl md:text-3xl font-bold">Groovy Doobee</h1>
+            <p class="text-sm md:text-base text-pink-200 mt-2">
+                A premium collection of vinyl from your favorite artists
+            </p>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow max-w-6xl mx-auto px-4 md:px-8 py-8 w-full">
+
+        <!-- Main Application Container -->
+        <div id="main-app-container">
+            
+            <!-- 1. Artist Selection Page (Page 1) -->
+            <div id="artist-selection-page">
+                <section class="mb-12">
+                    <h2 class="text-xl md:text-2xl font-semibold mb-6 text-center text-pink-800">Select Your Artist</h2>
+                    
+                    <div id="brands-container" class="grid grid-cols-3 gap-6 mb-8 max-w-3xl mx-auto">
+                        <!-- Artist buttons will be injected here by JavaScript -->
+                    </div>
+                </section>
+            </div>
+
+            <!-- 2. Album List Page (Page 2) -->
+            <div id="album-list-page" class="hidden">
+                <div id="brand-display">
+                    <!-- Album cards will be injected here by JavaScript -->
+                </div>
+            </div>
+
+            <!-- 3. Song List/Order Page (Page 3) -->
+            <div id="song-list-page" class="hidden">
+                <div id="song-display">
+                    <!-- Song details and Order button will be injected here by JavaScript -->
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Order message display -->
+        <div id="order-message-container">
+            <!-- Order message will be injected here by JavaScript -->
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-pink-200 border-t border-pink-300 py-8 px-4 md:px-8">
+        <div class="max-w-6xl mx-auto text-center">
+            <p class="text-sm text-pink-700">
+                © 2025FracyRights Groovy Doobee. I love you so much Sir Gabriel
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        // Data for artists and vinyl records.
+        const brands = [
+            { 
+                id: 'beabadoobee', 
+                name: 'Beabadoobee', 
+                description: "The Pinay-British indie rock sensation. Explore her nostalgic and raw music on vinyl.",
+                logo: "https://wallpapercat.com/w/full/c/b/b/2273794-2400x1500-desktop-hd-beabadoobee-wallpaper.jpg",
+                products: [
+                    { 
+                        id: 'beatopia', 
+                        name: 'Beatopia LP (Pink Vinyl)', 
+                        price: '₱ 2,100.00', 
+                        image: "https://cdn.hmv.com/r/w-960/hmv/files/a0/a0afeb34-23ae-4db6-8216-82ceb000c779.jpg",
+                        tracks: [
+                            "1. Beatopia Cultsong", "2. 10:36", "3. Sunny Day", "4. See You Soon", "5. The Perfect Pair", "6. Broken CD"
+                        ]
+                    },
+                    { 
+                        id: 'fake_it_flowers', 
+                        name: 'Fake It Flowers LP (Orange Vinyl)', 
+                        price: '₱ 2,300.00', 
+                        image: "https://external-preview.redd.it/Mj-psdf-vughGNVoRtGj5hvkf2wQdnddBX5u9Y31JYk.jpg?auto=webp&s=7694beae795c6fe77969a60760cb44c88d9cba4f",
+                        tracks: [
+                            "1. Care", "2. Dye It Red", "3. Back To Mars", "4. Charlie Brown", "5. Worth It", "6. How Was Your Day?"
+                        ]
+                    },
+                    { 
+                        id: 'space_cadet', 
+                        name: 'Space Cadet EP', 
+                        price: '₱ 1,800.00', 
+                        image: "https://f4.bcbits.com/img/0028540460_10.jpg",
+                        tracks: [
+                            "1. Space Cadet", "2. I Wish I Was Stephen Malkmus", "3. Sun", "4. Talk"
+                        ]
+                    }
+                ]
+            },
+            { 
+                id: 'taylor_swift', 
+                name: 'Taylor Swift', 
+                description: "The queen of pop and country. Find limited editions of her iconic albums on vinyl.",
+                // Using existing logo URL
+                logo: "https://tse1.explicit.bing.net/th/id/OIP.bDK-1HHBaME1FT7BRN6qyQAAAA?rs=1&pid=ImgDetMain&o=7&rm=3",
+                products: [
+                    { 
+                        id: '1989', 
+                        name: '1989 (Taylor\'s Version) Vinyl', 
+                        price: '₱ 2,500.00', 
+                        // Updated image
+                        image: "image_4d8dc7.png",
+                        tracks: [
+                            "1. Welcome to New York (Taylor's Version)", "2. Blank Space (Taylor's Version)", "3. Style (Taylor's Version)", "4. Bad Blood (Taylor's Version)", "5. Now That We Don't Talk (Vault)", "6. Suburban Legends (Vault)"
+                        ]
+                    },
+                    { 
+                        id: 'midnights', 
+                        name: 'Midnights Moonstone Blue Edition Vinyl', 
+                        price: '₱ 2,800.00', 
+                        // Updated image
+                        image: "image_4ca50b.jpg",
+                        tracks: [
+                            "1. Lavender Haze", "2. Maroon", "3. Anti-Hero", "4. Snow On The Beach (ft. Lana Del Rey)", "5. Karma", "6. Mastermind"
+                        ]
+                    },
+                    { 
+                        id: 'folklore', 
+                        name: 'Folklore (Beige) Double LP', 
+                        price: '₱ 2,650.00', 
+                        // Using existing image URL
+                        image: "https://upload.wikimedia.org/wikipedia/en/f/f3/Taylor_Swift_-_Folklore.png",
+                        tracks: [
+                            "1. the 1", "2. cardigan", "3. the last great american dynasty", "4. exile (ft. Bon Iver)", "5. my tears ricochet", "6. august"
+                        ]
+                    }
+                ]
+            },
+            { 
+                id: 'the_1975', 
+                name: 'The 1975', 
+                description: "The band that left a mark on alternative pop. Collect their popular albums on vinyl in various colors.",
+                // Using existing logo URL
+                logo: "https://storage.googleapis.com/afs-prod/media/e06d568c8b9b4746b8f9b5fccfee2667/1050.jpeg",
+                products: [
+                    { 
+                        id: 'brief_inquiry', 
+                        name: 'A Brief Inquiry into Online Relationships LP', 
+                        price: '₱ 2,700.00', 
+                        // Updated image
+                        image: "image_4d9189.png", 
+                        tracks: ["1. The 1975", "2. Give Yourself a Try", "3. TOOTIMETOOTIMETOOTIME", "4. Love It If We Made It", "5. Sincerity Is Scary", "6. I Always Wanna Die (Sometimes)"] 
+                    },
+                    { 
+                        id: 'ilysfyasbuic', 
+                        name: 'I Like It When You Sleep, for You Are So Beautiful Yet So Unaware of It 2LP', 
+                        price: '₱ 3,200.00', 
+                        // Updated image
+                        image: "image_4d94d5.png", 
+                        tracks: ["1. The 1975", "2. Love Me", "3. UGH!", "4. A Change of Heart", "5. Somebody Else", "6. The Sound"] 
+                    },
+                    { 
+                        id: 'bfiafl', 
+                        name: 'Being Funny in a Foreign Language LP', 
+                        price: '₱ 2,550.00', 
+                        // Using existing image URL
+                        image: "https://upload.wikimedia.org/wikipedia/en/d/d0/The_1975_-_Being_Funny_in_a_Foreign_Language.png", 
+                        tracks: ["1. The 1975", "2. Happiness", "3. I'm In Love With You", "4. All I Need To Hear", "5. Wintering", "6. About You"] 
+                    }
+                ]
+            },
+            { 
+                id: 'lizzy_mcalpine', 
+                name: 'Lizzy McAlpine', 
+                description: "The rising star of bedroom pop and indie folk. Feel her heartfelt lyrics with every spin of the record.", 
+                // Using existing logo URL
+                logo: "https://www.nme.com/wp-content/uploads/2023/04/Chicago-Show-03-696x442.jpg",
+                products: [
+                    { 
+                        id: 'five_seconds_flat', 
+                        name: 'five seconds flat LP (Blue/White Splatter)', 
+                        price: '₱ 2,400.00', 
+                        // Updated image
+                        image: "image_ffed0e.jpg", 
+                        tracks: ["1. none of my business", "2. firearm", "3. doomsday", "4. all my ghost", "5. ceilings", "6. chemtrails"] 
+                    },
+                    { 
+                        id: 'older', 
+                        name: 'Older LP (Black Vinyl)', 
+                        price: '₱ 2,600.00', 
+                        // Updated image
+                        image: "image_ff78d2.png", 
+                        tracks: ["1. The Elevator", "2. Older", "3. Broken Glass", "4. I Guess", "5. Like It Tastes"] 
+                    },
+                    { 
+                        id: 'give_me_a_minute', 
+                        name: 'Give Me A Minute LP', 
+                        price: '₱ 2,150.00', 
+                        // Using existing image URL
+                        image: "https://f4.bcbits.com/img/a0447171439_10.jpg", 
+                        tracks: ["1. Give Me A Minute", "2. Nothing/Sadie", "3. Pancakes for Dinner", "4. Over-the-moon", "5. I think I'm in love"] 
+                    }
+                ]
+            },
+            { 
+                id: 'clairo', 
+                name: 'Clairo', 
+                description: "The face of bedroom pop. Listen to her intimate and atmospheric music on vinyl.", 
+                // Using existing logo URL
+                logo: "https://i.pinimg.com/originals/45/b3/fc/45b3fc12ed4cf1f1873de48371b7c5c4.jpg",
+                products: [
+                    { 
+                        id: 'sling', 
+                        name: 'Sling LP (Black Vinyl)', 
+                        price: '₱ 2,500.00', 
+                        // Updated image
+                        image: "image_4d990f.png", 
+                        tracks: ["1. Bambi", "2. Amoeba", "3. Partridge", "4. Zinnias", "5. Blouse", "6. Harbor"] 
+                    },
+                    { 
+                        id: 'immunity', 
+                        name: 'Immunity LP (Red Vinyl)', 
+                        price: '₱ 2,350.00', 
+                        // Updated image
+                        image: "image_4d9850.png", 
+                        tracks: ["1. Alewife", "2. North", "3. Bags", "4. Sofia", "5. Closer to You", "6. Sinking"] 
+                    },
+                    { 
+                        id: 'diary_001', 
+                        name: 'Diary 001 EP', 
+                        price: '₱ 1,900.00', 
+                        // Using existing image URL
+                        image: "https://f4.bcbits.com/img/0014792610_10.jpg", 
+                        tracks: ["1. Hello?", "2. Flamin' Hot Cheetos", "3. B.O.M.D.", "4. 4EVER"] 
+                    }
+                ]
+            },
+            { 
+                id: 'the_marias', 
+                name: 'The Marías', 
+                description: "Smooth, dreamy, and bilingual pop. Relax to their sensual and jazz-infused sound.", 
+                // Using existing logo URL
+                logo: "https://s1.ticketm.net/dam/a/667/c68e18ef-e5a4-4154-a02f-278e939a7667_TABLET_LANDSCAPE_LARGE_16_9.jpg",
+                products: [
+                    { 
+                        id: 'cinema', 
+                        name: 'CINEMA LP (Clear Vinyl)', 
+                        price: '₱ 2,800.00', 
+                        // Updated image
+                        image: "image_00614a.png", 
+                        tracks: ["1. Just a Feeling", "2. Calling U Back", "3. Hush", "4. The Only Thing", "5. Un Millón", "6. Hablemos Claro"] 
+                    },
+                    { 
+                        id: 'submarine', 
+                        name: 'Submarine LP (Yellow Vinyl)', 
+                        price: '₱ 2,600.00', 
+                        // Updated image
+                        image: "image_000eba.png", 
+                        tracks: ["1. Runaway", "2. Still Love", "3. High", "4. No One", "5. Vicious", "6. Submarine"] 
+                    },
+                    { 
+                        id: 'superclean', 
+                        name: 'Superclean, Vol. I & II LP', 
+                        price: '₱ 3,100.00', 
+                        // Using existing image URL
+                        image: "https://f4.bcbits.com/img/a2185803248_10.jpg", 
+                        tracks: ["1. I Don't Know You", "2. Basta Ya", "3. I Like It", "4. Only in My Dreams", "5. Ruthless", "6. Cariñito"] 
+                    }
+                ]
+            }
+        ];
+
+        let selectedArtistId = null; // Variable to track current artist for back navigation
+
+        // Utility function to hide all main pages
+        const hideAllPages = () => {
+            document.getElementById('artist-selection-page').classList.add('hidden');
+            document.getElementById('album-list-page').classList.add('hidden');
+            document.getElementById('song-list-page').classList.add('hidden');
+        };
+
+        // --- Navigation Functions ---
+
+        window.goBackToSelection = () => {
+            hideAllPages();
+            document.getElementById('artist-selection-page').classList.remove('hidden');
+            selectedArtistId = null;
+        };
+
+        window.goBackToAlbumList = () => {
+            hideAllPages();
+            document.getElementById('album-list-page').classList.remove('hidden');
+        };
+
+        // --- Page 1: Artist Selection ---
+
+        function renderBrands() {
+            const brandsContainer = document.getElementById('brands-container');
+            // IMPORTANT: logoUrl now directly uses the local file name or URL
+            const getStyle = (logoUrl) => `background-image: url('${logoUrl}');`;
+
+            brandsContainer.innerHTML = brands.map(brand => `
+                <button
+                    onclick="handleArtistClick('${brand.id}')"
+                    class="w-full h-40 aspect-square text-sm md:text-base font-medium transition-all duration-300 hover:scale-105 flex flex-col items-center justify-center gap-2 rounded-lg shadow-xl bg-gray-200 border-4 border-pink-300 hover:border-pink-500 overflow-hidden artist-square"
+                    style="${getStyle(brand.logo)}"
+                    id="btn-${brand.id}"
+                >
+                    <span class="p-2 text-center bg-black bg-opacity-70 text-white rounded-lg font-bold text-lg leading-tight transition-opacity duration-300 artist-name-text">
+                        ${brand.name}
+                    </span>
+                </button>
+            `).join('');
+        }
+
+        // --- Page 2: Album List ---
+
+        window.handleArtistClick = (artistId) => {
+            selectedArtistId = artistId;
+            hideAllPages();
+            document.getElementById('album-list-page').classList.remove('hidden');
+
+            // 1. Highlight button
+            document.querySelectorAll('#brands-container button').forEach(btn => {
+                btn.classList.remove('ring-4', 'ring-pink-500', 'scale-105', 'active-artist');
+                btn.classList.add('border-pink-300');
+            });
+            const activeBtn = document.getElementById(`btn-${artistId}`);
+            if (activeBtn) {
+                activeBtn.classList.add('ring-4', 'ring-pink-500', 'scale-105', 'active-artist');
+                activeBtn.classList.remove('border-pink-300');
+            }
+
+
+            // 2. Load Content
+            const activeBrandData = brands.find(b => b.id === artistId);
+            const brandDisplay = document.getElementById('brand-display');
+            
+            let productsHtml = '';
+            if (activeBrandData && activeBrandData.products.length > 0) {
+                productsHtml = activeBrandData.products.map(product => `
+                    <!-- The entire card is a clickable button -->
+                    <button 
+                        onclick="handleAlbumClick('${artistId}', '${product.id}')"
+                        class="product-card-button text-center focus:outline-none"
+                    >
+                        <!-- Image Container (Responsive Square) -->
+                        <div class="w-full aspect-square mx-auto mb-4">
+                            <img src="${product.image}" alt="${product.name}" 
+                                class="w-full h-full object-cover rounded-lg vinyl-image border-4 border-pink-300 group-hover:border-pink-500 transition-colors" 
+                                onerror="this.onerror=null;this.src='https://placehold.co/256x256/fecaca/831843?text=Vinyl+Album'" />
+                        </div>
+                        
+                        <!-- Details -->
+                        <h4 class="font-bold text-xl text-pink-900 mb-2">${product.name}</h4>
+                        <p class="text-pink-600 font-semibold text-2xl">${product.price}</p>
+                    </button>
+                `).join('');
+                
+                productsHtml = `<div class="grid grid-cols-2 md:grid-cols-3 gap-8">${productsHtml}</div>`;
+            } else {
+                productsHtml = `<div class="text-center p-8 text-pink-500 bg-pink-50 rounded-lg">
+                    <p>No vinyl records available for this artist. Please check back later!</p>
+                </div>`;
+            }
+
+            
+            brandDisplay.innerHTML = `
+                <div class="bg-white p-8 rounded-xl border border-pink-200 shadow-2xl animate-fade-in-up">
+                    <button onclick="goBackToSelection()" class="mb-6 flex items-center text-pink-700 hover:text-pink-900 transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
+                        </svg>
+                        Back to Artist Selection
+                    </button>
+                    
+                    <div class="text-center mb-6">
+                        <h3 class="text-2xl md:text-3xl font-extrabold mb-2 text-pink-800">
+                            ${activeBrandData ? activeBrandData.name : 'Artist'} - Official Vinyl Collection
+                        </h3>
+                        <p class="text-pink-600 italic">
+                            ${activeBrandData ? activeBrandData.description : 'Description'}
+                        </p>
+                    </div>
+                    ${productsHtml}
+                </div>
+            `;
+        };
+        
+        // --- Page 3: Song List / Order Page ---
+
+        window.handleAlbumClick = (artistId, productId) => {
+            hideAllPages();
+            document.getElementById('song-list-page').classList.remove('hidden');
+
+            const artist = brands.find(b => b.id === artistId);
+            const product = artist ? artist.products.find(p => p.id === productId) : null;
+            const songDisplay = document.getElementById('song-display');
+
+            if (!product) {
+                songDisplay.innerHTML = `<div class="text-center p-12 bg-white rounded-xl shadow-xl">Album not found.</div>`;
+                return;
+            }
+            
+            const tracksHtml = product.tracks.map(track => `<li class="py-1 border-b border-pink-100 last:border-b-0">${track}</li>`).join('');
+
+            songDisplay.innerHTML = `
+                <div class="bg-white p-8 rounded-xl border border-pink-200 shadow-2xl animate-fade-in-up max-w-2xl mx-auto">
+                    <!-- BACK BUTTON -->
+                    <button onclick="goBackToAlbumList()" class="mb-6 flex items-center text-pink-700 hover:text-pink-900 transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
+                        </svg>
+                        Back to ${artist.name}'s Album List
+                    </button>
+
+                    <div class="md:flex gap-6 items-start">
+                        <!-- Left: Album Image & Details -->
+                        <div class="w-full md:w-1/2 text-center mb-6 md:mb-0">
+                            <!-- Image in Page 3 is fixed size w-48 h-48, so it's already square -->
+                            <img src="${product.image}" alt="${product.name}" class="w-48 h-48 mx-auto object-cover rounded-lg vinyl-image border-4 border-pink-500 shadow-lg" 
+                                onerror="this.onerror=null;this.src='https://placehold.co/192x192/fecaca/831843?text=Album+Cover'" />
+                            
+                            <h3 class="text-xl font-extrabold text-pink-800 mt-4">${product.name}</h3>
+                            <p class="text-pink-600 font-bold text-2xl mt-1">${product.price}</p>
+                            
+                            <!-- Order Button -->
+                            <button
+                                onclick="handleOrder('${product.name}')"
+                                class="mt-6 bg-pink-600 text-white px-8 py-3 rounded-full shadow-xl hover:bg-pink-700 transition-colors transform hover:scale-105 font-semibold text-lg w-full"
+                            >
+                                ORDER NOW!
+                            </button>
+                        </div>
+
+                        <!-- Right: Tracklist -->
+                        <div class="w-full md:w-1/2">
+                            <h4 class="text-2xl font-bold text-pink-800 border-b-2 border-pink-200 pb-2 mb-4">Tracklist:</h4>
+                            <ul class="text-pink-900 text-base list-none p-0 m-0 bg-pink-50 p-4 rounded-lg shadow-inner">
+                                ${tracksHtml}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            `;
+        };
+
+
+        window.handleOrder = (productName) => {
+            const orderMessageContainer = document.getElementById('order-message-container');
+            orderMessageContainer.innerHTML = `
+                <div class="fixed bottom-4 right-4 bg-green-500 text-white px-6 py-3 rounded-full shadow-lg transition-all duration-500 animate-slide-in-right z-50">
+                    Order placed for ${productName}! Thank you for your order!
+                </div>
+            `;
+            setTimeout(() => {
+                orderMessageContainer.innerHTML = '';
+            }, 3000);
+        };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            renderBrands();
+
+            // Re-render the initial page
+            hideAllPages();
+            document.getElementById('artist-selection-page').classList.remove('hidden');
+        });
+    </script>
+</body>
+</html>
